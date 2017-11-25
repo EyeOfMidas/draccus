@@ -10,4 +10,8 @@ You will need libssh-dev
 
 
 ## To run
-    ./bin/draccus
+    ./draccus
+
+
+## To reset/clean
+    make distclean
