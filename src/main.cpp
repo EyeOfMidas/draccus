@@ -18,8 +18,8 @@ int main() {
 	ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_BINDADDR, "0.0.0.0");
 	ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_BINDPORT_STR, "4000");
 
-	ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_RSAKEY, "/home/midas/src/draccus/ssh_host/ssh_host_rsa_key");
-	ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_DSAKEY, "/home/midas/src/draccus/ssh_host/ssh_host_dsa_key");
+	ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_RSAKEY, "./ssh_host/ssh_host_rsa_key");
+	ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_DSAKEY, "./ssh_host/ssh_host_dsa_key");
 
 	// Use for debugging issues
 	//ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_LOG_VERBOSITY_STR, "3");
