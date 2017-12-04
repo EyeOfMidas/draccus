@@ -28,7 +28,7 @@ typedef struct {
 typedef struct  {
 	ssh_channel channel;
 	int auth_attempts;
-	int authenticated;
+	bool authenticated;
 } session_data_struct;
 
 #endif

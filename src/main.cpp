@@ -183,10 +183,25 @@ extern "C" {
 		(void) session;
 
 		if (strcmp(user, "user") == 0 && strcmp(pass, "password") == 0) {
-			sdata->authenticated = 1;
+			sdata->authenticated = true;
 			return SSH_AUTH_SUCCESS;
 		}
 
+		sdata->auth_attempts++;
+		return SSH_AUTH_DENIED;
+	}
+
+	static int auth_pubkey(ssh_session session, const char *user, ssh_key_struct* key,
+		char datathingie, void *userdata) {
+		session_data_struct *sdata = (session_data_struct *) userdata;
+
+		(void) session;
+
+		/*if (strcmp(user, "user") == 0 && strcmp(pass, "password") == 0) {
+			sdata->authenticated = true;
+			return SSH_AUTH_SUCCESS;
+		}
+		*/
 		sdata->auth_attempts++;
 		return SSH_AUTH_DENIED;
 	}
@@ -206,6 +221,14 @@ void endSession(ssh_event event, ssh_session session) {
 	ssh_free(session);
 }
 
+void spawnMudSession(ssh_event event, ssh_session session) {
+	int loopCounter = 0;
+	while(loopCounter < 300) {
+		loopCounter++;
+	}
+	std::cout << "Thank you for playing!" << std::endl;
+}
+
 void sessionHandler(ssh_event event, ssh_session session) {
 	std::cout << "Negotiating keys" << std::endl;
 	if (ssh_handle_key_exchange(session) != SSH_OK) {
@@ -213,15 +236,13 @@ void sessionHandler(ssh_event event, ssh_session session) {
 		endSession(event, session);
 		return;
 	}
-
+	std::cout << "setting auth method to Password" << std::endl;
 	ssh_set_auth_methods(session, SSH_AUTH_METHOD_PASSWORD);
 	ssh_event_add_session(event, session);
 
 	int timeoutCounter = 0;
-	bool isAuthenticated = false;
-	int authAttempts = 0;
 
- //Structure for storing the pty size. 
+ 	//Structure for storing the pty size. 
 	winsize wsize;
 	wsize.ws_row = 0;
 	wsize.ws_col = 0;
@@ -243,7 +264,7 @@ void sessionHandler(ssh_event event, ssh_session session) {
 	session_data_struct sdata;
 	sdata.channel = NULL;
 	sdata.auth_attempts = 0;
-	sdata.authenticated = 0;
+	sdata.authenticated = false;
 
 	ssh_channel_callbacks_struct channel_cb;
 	channel_cb.userdata = &cdata;
@@ -257,16 +278,17 @@ void sessionHandler(ssh_event event, ssh_session session) {
 	ssh_server_callbacks_struct server_cb;
 	server_cb.userdata = &sdata;
 	server_cb.auth_password_function = auth_password;
+	server_cb.auth_pubkey_function = auth_pubkey;
 	server_cb.channel_open_request_session_function = channel_open;
 
 	ssh_callbacks_init(&server_cb);
-	ssh_callbacks_init(&channel_cb);
+	//ssh_callbacks_init(&channel_cb);
 
 	ssh_set_server_callbacks(session, &server_cb);
 
 
-	while (!isAuthenticated) {
-		if (authAttempts >= 3) {
+	while (!sdata.authenticated) {
+		if (sdata.auth_attempts >= 3) {
 			std::cerr << "\t" << "Too many failed auth attempts" << std::endl;
 			endSession(event, session);
 		}
@@ -285,7 +307,8 @@ void sessionHandler(ssh_event event, ssh_session session) {
 		timeoutCounter++;
 	}
 
-
+	std::cout << "session authenticated" << std::endl;
+	spawnMudSession(event, session);
 	endSession(event, session);
 }
 
