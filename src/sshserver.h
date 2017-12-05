@@ -1,7 +1,7 @@
-#ifndef MAIN_H
-#define MAIN_H
-#include "sshserver.h"
-/*#include <libssh/server.h>
+#ifndef SSHSERVER_H
+#define SSHSERVER_H
+
+#include <libssh/server.h>
 #include <libssh/callbacks.h>
 #include <libssh/libssh.h>
 #include <iostream>
@@ -31,5 +31,21 @@ typedef struct  {
 	int auth_attempts;
 	bool authenticated;
 } session_data_struct;
-*/
+
+class SshServer
+{
+	public:
+		SshServer();
+		~SshServer();
+
+		int Start();
+		void SessionHandler(ssh_event, ssh_session);
+
+		void SpawnMudSession(ssh_event, ssh_session);
+	private:
+		int AuthPubkey(ssh_session, const char*, ssh_key_struct*, char, void*);
+
+		const char* address;
+		const char* port;
+};
 #endif
