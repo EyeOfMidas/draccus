@@ -1,8 +1,7 @@
 #include "main.h"
 
 extern "C" {
-static int auth_password(ssh_session session, const char *user,
-	const char *pass, void *userdata) {
+static int auth_password(ssh_session session, const char *user, const char *pass, void *userdata) {
 	session_data_struct *sdata = (session_data_struct *) userdata;
 
 	(void) session;
@@ -54,7 +53,7 @@ static int auth_pubkey(ssh_session session, const char *user, ssh_key_struct* pu
 			}
 		}
 	}
-	sdata->auth_attempts++;
+	
 	return SSH_AUTH_DENIED;
 }
 
@@ -88,12 +87,9 @@ void sessionHandler(ssh_event event, ssh_session session) {
 		endSession(event, session);
 		return;
 	}
-	//std::cout << "setting auth method to Password" << std::endl;
-	//ssh_set_auth_methods(session, SSH_AUTH_METHOD_PASSWORD);
 
-	std::cout << "setting auth method to Pubkey" << std::endl;
-	ssh_set_auth_methods(session, SSH_AUTH_METHOD_PUBLICKEY);
-
+	std::cout << "setting auth methods" << std::endl;
+	ssh_set_auth_methods(session, SSH_AUTH_METHOD_PUBLICKEY | SSH_AUTH_METHOD_PASSWORD);
 
 	ssh_event_add_session(event, session);
 
@@ -181,7 +177,7 @@ int main() {
 	ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_DSAKEY, "./ssh_host/ssh_host_dsa_key");
 
 	// Use for debugging issues
-	//ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_LOG_VERBOSITY_STR, "3");
+	ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_LOG_VERBOSITY_STR, "4");
 
 	std::cout << "Server start listening " << address << ":" << port << std::endl;
 	if(ssh_bind_listen(sshbind) < 0) {
@@ -191,8 +187,8 @@ int main() {
 
 	ssh_session session;
 	ssh_event event;
-	std::cout << "Waiting for new connections" << std::endl;
 	while(1) {
+		std::cout << "Waiting for new connections" << std::endl;
 		session = ssh_new();
 		if(session == NULL) {
 			std::cerr << "\t" << "Failed to allocate session" << std::endl;
