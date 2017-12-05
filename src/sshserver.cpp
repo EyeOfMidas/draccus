@@ -75,7 +75,7 @@ void SshServer::SpawnMudSession(ssh_event event, ssh_session session) {
 	int loopCounter = 0;
 	while(loopCounter < 10) {
 		loopCounter++;
-		session->channel->child_stdout << "MUD" << std:endl;
+		//session->channel->child_stdout << "MUD" << std:endl;
 		std::cout << "MUD" << std::endl;
 	}
 	std::cout << "Thank you for playing!" << std::endl;
