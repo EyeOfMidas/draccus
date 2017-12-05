@@ -6,6 +6,7 @@
 #include <libssh/libssh.h>
 #include <iostream>
 #include <thread>
+#include <sys/stat.h>
 
 typedef struct {
 	int ws_row;
