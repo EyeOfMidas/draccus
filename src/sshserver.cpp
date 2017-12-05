@@ -6,7 +6,7 @@ SshServer::SshServer()
 	port = "4000";
 
 }
-
+extern "C" {
 static int auth_password(ssh_session session, const char *user, const char *pass, void *userdata) {
 	std::cout << "using " << user << " password" << std::endl;
 	session_data_struct *sdata = (session_data_struct *) userdata;
@@ -43,7 +43,7 @@ static int auth_pubkey(ssh_session session, const char *user, ssh_key_struct* pu
 	sdata->authenticated = false;
 	ssh_key key;
 	int result;
-	char authorizedkeys[256];
+	char authorizedkeys[256] = "";
 	sprintf(authorizedkeys, "./authorized_keys/%s.pub", user);
 	struct stat buf;    
 
@@ -69,6 +69,7 @@ static ssh_channel channel_open(ssh_session session, void *userdata) {
 
 	sdata->channel = ssh_channel_new(session);
 	return sdata->channel;
+}
 }
 
 void SshServer::SpawnMudSession(ssh_event event, ssh_session session) {
@@ -177,7 +178,7 @@ void SshServer::SessionHandler(ssh_event event, ssh_session session) {
 
 int SshServer::Start() {
 	std::cout << "Draccus MUD v0.1" << std::endl;
-
+	ssh_threads_set_callbacks(ssh_threads_get_pthread());
 	ssh_init();
 	ssh_bind sshbind;
 	sshbind = ssh_bind_new();

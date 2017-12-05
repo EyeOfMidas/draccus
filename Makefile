@@ -32,7 +32,7 @@ PROGRAM                = draccus
 EXTRA_CFLAGS           = -fdata-sections -ffunction-sections
 
 # The extra linker options, e.g. "-lmysqlclient -lz"
-EXTRA_LDFLAGS          = -lssh -lpthread
+EXTRA_LDFLAGS          = -lssh -lpthread -lssh_threads
 
 # Specify the include dirs, e.g. "-I/usr/include/mysql -I./include -I/usr/include -I/usr/local/include".
 INCLUDE                = 
